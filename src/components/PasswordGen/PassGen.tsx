@@ -1,21 +1,37 @@
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 import { useState } from 'react'
-import { Checkbox } from '../Checkbox/checkBox'
+import { Checkbox } from '../Checkbox/Checkbox'
 
 
 import passwordGif from '../../assets/gif/password.gif'
 import copyIcon from '../../assets/icons/copy.svg'
 import refreshIcon from '../../assets/icons/refresh.svg'
+
 import './passGen.css'
-
-
+import { generatePassword, getPasswordStrength, handleCopyPassword } from '../utils'
 
 export const PassGen = () => {
     const [passwordLength, setPasswordLength] = useState<number>(10)
+    const [password, setPassword] = useState('')
+    const [useUpper, setUseUpper] = useState(true)
+    const [useLower, setUseLower] = useState(false)
+    const [useNumbers, setUseNumbers] = useState(false)
+    const [useSymbols, setUseSymbols] = useState(false)
   
-    const onChangePasswordLength = (value: any) => {
-      setPasswordLength(value)
+    const handleGeneratePassword = () => {
+      const newPassword = generatePassword(
+        passwordLength,
+        useUpper,
+        useLower,
+        useNumbers,
+        useSymbols
+      );
+      setPassword(newPassword);
+    };
+     
+    const onChangePasswordLength = (value: number | number[]) => {
+      setPasswordLength(Array.isArray(value) ? value[0] : value)
     }
   
     return (
@@ -33,17 +49,31 @@ export const PassGen = () => {
 
         <div className="password-input-wrapper">
           <div className="password-field">
-            <input type="text" placeholder="your password" value="B9QI4PDBYY" />
-            <img src={refreshIcon} alt="refresh the password" />
+            <input 
+                type="text" 
+                placeholder="your password" 
+                value={password} 
+                readOnly
+            />
+
+            <img 
+                src={refreshIcon} 
+                alt="refresh the password"
+                onClick={handleGeneratePassword}
+                style={{ cursor: 'pointer' }} 
+            />
           </div>
           
-          <button className="copy-btn">
-            <img src={copyIcon} alt="copy password" />
+          <button className="copy-btn" onClick={() => handleCopyPassword(password)}>
+            <img src={copyIcon} alt="copy password"  />
             Copy
           </button>
         </div>
 
-        <span className="fw-500">Weak</span>
+        <span className="fw-500">
+          {getPasswordStrength(password)}
+        </span>
+
         <div className="slider">
           <div>
             <label id="slider-label">Password Length: </label>
@@ -59,14 +89,33 @@ export const PassGen = () => {
         </div>
         
         <div className="elements">
-          <Checkbox id="uppercase" label="Uppercase" checked={true} name="upper" />
-          <Checkbox id="lowercase" label="Lowercase" checked={false} name="lower" />
-          <Checkbox id="numbers" label="Numbers" checked={false} name="numbers" />
+          <Checkbox 
+            id="uppercase" 
+            label="Uppercase" 
+            checked={useUpper} 
+            name="upper" 
+            onChange={() => setUseUpper(prev => !prev)}
+          />
+          <Checkbox 
+            id="lowercase" 
+            label="Lowercase" 
+            checked={useLower} 
+            name="lower"
+            onChange={() => setUseLower(prev => !prev)}  
+          />
+          <Checkbox 
+            id="numbers" 
+            label="Numbers" 
+            checked={useNumbers} 
+            name="numbers" 
+            onChange={() => setUseNumbers(prev => !prev)}
+          />
           <Checkbox
             id="special chars"
             label="Special Characters"
-            checked={true}
+            checked={useSymbols}
             name="specialChars"
+            onChange={() => setUseSymbols(prev => !prev)}
           />
         </div>
       </div>
